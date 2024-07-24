@@ -2,8 +2,8 @@ from django.shortcuts import render
 
 from rest_framework import viewsets
 
-from ReceiptRecorder.receipts.models import Item, Store, PurchaseRecord
-from ReceiptRecorder.receipts.serializers import ItemSerializer, StoreSerializer, PurchaseRecordSerializer
+from receipts.models import Item, Store, PurchaseRecord
+from receipts.serializers import ItemSerializer, StoreSerializer, PurchaseRecordSerializer
 
 # Create your views here.
 class ItemViewSet(viewsets.ModelViewSet):
@@ -15,5 +15,5 @@ class StoreViewSet(viewsets.ModelViewSet):
     serializer_class = StoreSerializer
 
 class PurchaseRecordViewSet(viewsets.ModelViewSet):
-    queryset = Store.objects.all()
+    queryset = PurchaseRecord.objects.all()
     serializer_class = PurchaseRecordSerializer

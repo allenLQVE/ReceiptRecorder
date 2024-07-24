@@ -19,7 +19,7 @@ from django.urls import include, path
 
 from rest_framework import routers
 
-from ReceiptRecorder.receipts.views import ItemViewSet, StoreViewSet, PurchaseRecordViewSet
+from receipts.views import ItemViewSet, StoreViewSet, PurchaseRecordViewSet
 
 router = routers.DefaultRouter(trailing_slash=False)
 router.register(r'items', ItemViewSet)

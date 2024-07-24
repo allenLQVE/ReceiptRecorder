@@ -6,10 +6,16 @@ class Item(models.Model):
     desc = models.TextField(blank=True)
     unit = models.CharField(blank=True, max_length=20)
 
+    class Meta:
+        db_table = 'item'
+
 class Store(models.Model):
     name = models.CharField(max_length=100)
     address = models.TextField(blank=True)
     desc = models.TextField(blank=True)
+
+    class Meta:
+        db_table = 'store'
 
 class PurchaseRecord(models.Model):
     store = models.ForeignKey(Store, on_delete=models.CASCADE)
@@ -19,3 +25,6 @@ class PurchaseRecord(models.Model):
     saving = models.FloatField()
     units = models.FloatField()
     detail = models.TextField(blank=True)
+
+    class Meta:
+        db_table = 'purchaseRecord'
