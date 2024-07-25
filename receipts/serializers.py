@@ -13,5 +13,5 @@ class StoreSerializer(serializers.ModelSerializer):
 
 class PurchaseRecordSerializer(serializers.ModelSerializer):
     class Meta:
-        mdoel = PurchaseRecord
+        model = PurchaseRecord
         fields = '__all__'
