@@ -56,10 +56,12 @@ class PurchaseRecordViewSet(viewsets.ModelViewSet):
         Get records by an item name
         '''
         itemName = request.data.get('item', None)
-        if itemName:
-            records = getRecordsByItem(item=itemName)
+        records = getRecordsByItem(item=itemName)
+
+        if records:
             serializer = self.get_serializer(records, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_204_NO_CONTENT)
         
     @action(detail=False)
     def getRecordByStore(self, request):
@@ -67,7 +69,9 @@ class PurchaseRecordViewSet(viewsets.ModelViewSet):
         Get records by a store name
         '''
         storeName = request.data.get('store', None)
-        if storeName:
-            records = getRecordsByStore(store=storeName)
+        records = getRecordsByStore(store=storeName)
+        
+        if records:
             serializer = self.get_serializer(records, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_204_NO_CONTENT)
