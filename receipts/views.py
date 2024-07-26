@@ -28,8 +28,8 @@ class PurchaseRecordViewSet(viewsets.ModelViewSet):
             store = data.get("store")
             item = data.get("item")
 
-            data["store"] = Store.objects.get(name=store).id
-            data["item"] = Item.objects.get(name=item).id
+            data["store_id"] = Store.objects.get(name=store).id
+            data["item_id"] = Item.objects.get(name=item).id
 
         if(not data.get("purchaseDate")):
             data["purchaseDate"] = timezone.now().date()
@@ -37,7 +37,6 @@ class PurchaseRecordViewSet(viewsets.ModelViewSet):
         if(not data.get("saving")):
             data["saving"] = 0
 
-        # return super().create(request, *args, **kwargs)
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         super().perform_create(serializer)
