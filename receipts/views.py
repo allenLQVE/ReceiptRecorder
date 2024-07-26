@@ -3,8 +3,9 @@ from django.utils import timezone
 
 from rest_framework import viewsets, status
 from rest_framework.response import Response
+from rest_framework.decorators import action
 
-from receipts.models import Item, Store, PurchaseRecord
+from receipts.models import Item, Store, PurchaseRecord, getRecordsByItem, getRecordsByStore
 from receipts.serializers import ItemSerializer, StoreSerializer, PurchaseRecordSerializer
 
 # Create your views here.
@@ -21,6 +22,12 @@ class PurchaseRecordViewSet(viewsets.ModelViewSet):
     serializer_class = PurchaseRecordSerializer
 
     def create(self, request, *args, **kwargs):
+        '''
+        [Override] Create an object of record. 
+        
+        Will get the store id and item id based on the item name and store name.
+        Fields will be filled if blank.
+        '''
         data = request.data
         data._mutable = True
 
@@ -42,3 +49,25 @@ class PurchaseRecordViewSet(viewsets.ModelViewSet):
         super().perform_create(serializer)
         headers = super().get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+    
+    @action(detail=False)
+    def getRecordByItem(self, request):
+        '''
+        Get records by an item name
+        '''
+        itemName = request.data.get('item', None)
+        if itemName:
+            records = getRecordsByItem(item=itemName)
+            serializer = self.get_serializer(records, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        
+    @action(detail=False)
+    def getRecordByStore(self, request):
+        '''
+        Get records by a store name
+        '''
+        storeName = request.data.get('store', None)
+        if storeName:
+            records = getRecordsByStore(store=storeName)
+            serializer = self.get_serializer(records, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)

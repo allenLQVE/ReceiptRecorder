@@ -21,7 +21,7 @@ from rest_framework import routers
 
 from receipts.views import ItemViewSet, StoreViewSet, PurchaseRecordViewSet
 
-router = routers.DefaultRouter(trailing_slash=False)
+router = routers.DefaultRouter()
 router.register(r'items', ItemViewSet)
 router.register(r'stores', StoreViewSet)
 router.register(r'records', PurchaseRecordViewSet)
