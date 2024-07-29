@@ -5,17 +5,73 @@ from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
 
-from receipts.models import Item, Store, PurchaseRecord, getRecordsByItem, getRecordsByStore
+from receipts import models
 from receipts.serializers import ItemSerializer, StoreSerializer, PurchaseRecordSerializer
+
+Item = models.Item
+Store = models.Store
+PurchaseRecord = models.PurchaseRecord
 
 # Create your views here.
 class ItemViewSet(viewsets.ModelViewSet):
     queryset = Item.objects.all()
     serializer_class = ItemSerializer
 
+    @action(detail=False)
+    def getItemByName(self, request, *args, **kwargs):
+        '''
+        Get Item by an item name
+        '''
+        itemName = request.data.get('item', None)
+        result = models.getItem(item=itemName)
+
+        if result:
+            serializer = self.get_serializer(result)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
+    @action(detail=False)
+    def getItemByStore(self, request, *args, **kwargs):
+        '''
+        Get Item by a store name
+        '''
+        storeName = request.data.get('store', None)
+        result = models.getItemByStore(store=storeName)
+
+        if result:
+            serializer = self.get_serializer(result, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 class StoreViewSet(viewsets.ModelViewSet):
     queryset = Store.objects.all()
     serializer_class = StoreSerializer
+
+    @action(detail=False)
+    def getStoreByName(self, request, *args, **kwargs):
+        '''
+        Get Store by a store name
+        '''
+        storeName = request.data.get('store', None)
+        result = models.getStore(store=storeName)
+
+        if result:
+            serializer = self.get_serializer(result)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(detail=False) 
+    def getStoreByItem(self, request, *args, **kwargs):
+        '''
+        Get store by an item name
+        '''
+        itemName = request.data.get('item', None)
+        result = models.getStoreByItem(item=itemName)
+
+        if result:
+            serializer = self.get_serializer(result, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 class PurchaseRecordViewSet(viewsets.ModelViewSet):
     queryset = PurchaseRecord.objects.all()
@@ -56,10 +112,10 @@ class PurchaseRecordViewSet(viewsets.ModelViewSet):
         Get records by an item name
         '''
         itemName = request.data.get('item', None)
-        records = getRecordsByItem(item=itemName)
+        result = models.getRecordsByItem(item=itemName)
 
-        if records:
-            serializer = self.get_serializer(records, many=True)
+        if result:
+            serializer = self.get_serializer(result, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(status=status.HTTP_204_NO_CONTENT)
         
@@ -69,9 +125,9 @@ class PurchaseRecordViewSet(viewsets.ModelViewSet):
         Get records by a store name
         '''
         storeName = request.data.get('store', None)
-        records = getRecordsByStore(store=storeName)
+        result = models.getRecordsByStore(store=storeName)
         
-        if records:
-            serializer = self.get_serializer(records, many=True)
+        if result:
+            serializer = self.get_serializer(result, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(status=status.HTTP_204_NO_CONTENT)

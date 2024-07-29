@@ -12,6 +12,25 @@ class Item(models.Model):
     class Meta:
         db_table = 'item'
 
+def getItem(*args, **kwargs):
+    '''
+    Get Item by Item name
+    '''
+    itemName = kwargs.get('item')
+
+    result = Item.objects.get(name=itemName)
+    return result
+
+def getItemByStore(*args, **kwargs):
+    '''
+    Get items by store name
+    '''
+    storeName = kwargs.get('store')
+
+    records = PurchaseRecord.objects.filter(store__name=storeName).values("item_id")
+    result = Item.objects.filter(id__in=records)
+    return result
+
 class Store(models.Model):
     '''
     Grocery Stores
@@ -22,6 +41,25 @@ class Store(models.Model):
 
     class Meta:
         db_table = 'store'
+
+def getStore(*args, **kwargs):
+    '''
+    Get store by store name
+    '''
+    storeName = kwargs.get('store')
+
+    result = Store.objects.get(name=storeName)
+    return result
+
+def getStoreByItem(*args, **kwargs):
+    '''
+    Get stores by item name
+    '''
+    itemName = kwargs.get('item')
+
+    records = PurchaseRecord.objects.filter(item__name=itemName).values("store_id")
+    result = Store.objects.filter(id__in=records)
+    return result
 
 class PurchaseRecord(models.Model):
     '''
