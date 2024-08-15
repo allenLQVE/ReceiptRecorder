@@ -20,7 +20,8 @@ class PurchaseRecordSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PurchaseRecord
-        fields = ('store',
+        fields = ('id',
+                  'store',
                   'store_id',
                   'item', 
                   'item_id',
