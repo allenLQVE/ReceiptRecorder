@@ -85,7 +85,7 @@ class PurchaseRecordViewSet(viewsets.ModelViewSet):
         Fields will be filled if blank.
         '''
         data = request.data
-        data._mutable = True
+        # data._mutable = True
 
         if(data.get("store") and data.get("item")):
             store = data.get("store")
