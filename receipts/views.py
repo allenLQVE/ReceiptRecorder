@@ -77,6 +77,33 @@ class PurchaseRecordViewSet(viewsets.ModelViewSet):
     queryset = PurchaseRecord.objects.all()
     serializer_class = PurchaseRecordSerializer
 
+    def update(self, request, *args, **kwargs):
+        '''
+        [Override] Update a record. 
+        
+        Will get the store id and item id based on the item name and store name.
+        '''
+        data = request.data
+
+        if(data.get("store") and data.get("item")):
+            store = data.get("store")
+            item = data.get("item")
+
+            data["store_id"] = Store.objects.get(name=store).id
+            data["item_id"] = Item.objects.get(name=item).id
+
+        if(not data.get("purchaseDate")):
+            data["purchaseDate"] = timezone.now().date()
+
+        if(not data.get("saving")):
+            data["saving"] = 0
+
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=data)
+        serializer.is_valid(raise_exception=True)
+        super().perform_update(serializer)
+        return Response(serializer.data)
+
     def create(self, request, *args, **kwargs):
         '''
         [Override] Create an object of record. 
