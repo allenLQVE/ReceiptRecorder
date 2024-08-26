@@ -4,12 +4,12 @@ from receipts.models import Item, Store, PurchaseRecord
 class ItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = Item
-        fields = ('name','desc','unit')
+        fields = ('id','name','desc','unit')
 
 class StoreSerializer(serializers.ModelSerializer):
     class Meta:
         model = Store
-        fields = ('name','desc','address')
+        fields = ('id','name','desc','address')
 
 class PurchaseRecordSerializer(serializers.ModelSerializer):
     store = StoreSerializer(read_only=True)
