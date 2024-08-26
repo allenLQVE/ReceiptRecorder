@@ -22,7 +22,7 @@ class ItemViewSet(viewsets.ModelViewSet):
         '''
         Get Item by an item name
         '''
-        itemName = request.data.get('item', None)
+        itemName = request.GET.get('item', None)
         result = models.getItem(item=itemName)
 
         if result:
@@ -35,7 +35,7 @@ class ItemViewSet(viewsets.ModelViewSet):
         '''
         Get Item by a store name
         '''
-        storeName = request.data.get('store', None)
+        storeName = request.GET.get('store', None)
         result = models.getItemByStore(store=storeName)
 
         if result:
@@ -52,7 +52,7 @@ class StoreViewSet(viewsets.ModelViewSet):
         '''
         Get Store by a store name
         '''
-        storeName = request.data.get('store', None)
+        storeName = request.GET.get('store', None)
         result = models.getStore(store=storeName)
 
         if result:
@@ -65,7 +65,7 @@ class StoreViewSet(viewsets.ModelViewSet):
         '''
         Get store by an item name
         '''
-        itemName = request.data.get('item', None)
+        itemName = request.GET.get('item', None)
         result = models.getStoreByItem(item=itemName)
 
         if result:
@@ -134,11 +134,11 @@ class PurchaseRecordViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
     
     @action(detail=False)
-    def getRecordByItem(self, request):
+    def getRecordByItem(self, request, *args, **kwargs):
         '''
         Get records by an item name
         '''
-        itemName = request.data.get('item', None)
+        itemName = request.GET.get('item', None)
         result = models.getRecordsByItem(item=itemName)
 
         if result:
@@ -151,7 +151,7 @@ class PurchaseRecordViewSet(viewsets.ModelViewSet):
         '''
         Get records by a store name
         '''
-        storeName = request.data.get('store', None)
+        storeName = request.GET.get('store', None)
         result = models.getRecordsByStore(store=storeName)
         
         if result:
