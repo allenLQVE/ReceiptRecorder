@@ -11,7 +11,7 @@ This project runs with Python 3.12.4 and Django 5.0.7. It requires the Django Re
 ```pip install djangorestframework``` and ```pip install django-cors-headers``` \
 
 After Django is set up, the project can be run for development with \
-```python runserver manage.py```
+```python manage.py runserver```
 
 ### Warning
 This project is not ready to be deployed. Please be aware that security needs to be taken care of before deployment. 
