@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import include, path
 
 from rest_framework import routers
+from rest_framework.authtoken import views
 
 from receipts.views import ItemViewSet, StoreViewSet, PurchaseRecordViewSet
 
@@ -29,4 +30,5 @@ router.register(r'records', PurchaseRecordViewSet)
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
+    path('login/', views.obtain_auth_token)
 ]

@@ -4,6 +4,8 @@ from django.utils import timezone
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
 
 from receipts import models
 from receipts.serializers import ItemSerializer, StoreSerializer, PurchaseRecordSerializer
@@ -14,6 +16,9 @@ PurchaseRecord = models.PurchaseRecord
 
 # Create your views here.
 class ItemViewSet(viewsets.ModelViewSet):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
     queryset = Item.objects.all()
     serializer_class = ItemSerializer
 
@@ -44,6 +49,9 @@ class ItemViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 class StoreViewSet(viewsets.ModelViewSet):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
     queryset = Store.objects.all()
     serializer_class = StoreSerializer
 
@@ -74,6 +82,9 @@ class StoreViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 class PurchaseRecordViewSet(viewsets.ModelViewSet):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
     queryset = PurchaseRecord.objects.all()
     serializer_class = PurchaseRecordSerializer
 
