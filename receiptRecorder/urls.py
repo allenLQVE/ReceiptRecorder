@@ -20,7 +20,7 @@ from django.urls import include, path
 from rest_framework import routers
 from rest_framework.authtoken import views
 
-from receipts.views import ItemViewSet, StoreViewSet, PurchaseRecordViewSet
+from receipts.views import ItemViewSet, StoreViewSet, PurchaseRecordViewSet, register
 
 router = routers.DefaultRouter()
 router.register(r'items', ItemViewSet)
@@ -30,5 +30,6 @@ router.register(r'records', PurchaseRecordViewSet)
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
-    path('login/', views.obtain_auth_token)
+    path('login/', views.obtain_auth_token),
+    path('register/', register)
 ]

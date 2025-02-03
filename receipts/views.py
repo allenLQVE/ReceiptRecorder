@@ -1,20 +1,33 @@
-from django.shortcuts import render
+from django.contrib.auth.models import User
 from django.utils import timezone
 
 from rest_framework import viewsets, status
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 
 from receipts import models
-from receipts.serializers import ItemSerializer, StoreSerializer, PurchaseRecordSerializer
+from receipts.serializers import ItemSerializer, StoreSerializer, PurchaseRecordSerializer, UserSerializer
 
 Item = models.Item
 Store = models.Store
 PurchaseRecord = models.PurchaseRecord
 
 # Create your views here.
+@api_view(['POST'])
+def register(request):
+    data = UserSerializer(data=request.data)
+    if data.is_valid():
+        User.objects.create_user(
+            username = data['username'].value,
+            password = data['password'].value
+        )
+        return Response(data.data, status=status.HTTP_201_CREATED)
+    else:
+        return Response(data.errors, status=status.HTTP_400_BAD_REQUEST)
+
 class ItemViewSet(viewsets.ModelViewSet):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
