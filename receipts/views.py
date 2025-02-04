@@ -24,7 +24,7 @@ def register(request):
             username = data['username'].value,
             password = data['password'].value
         )
-        return Response(data.data, status=status.HTTP_201_CREATED)
+        return Response(status=status.HTTP_201_CREATED)
     else:
         return Response(data.errors, status=status.HTTP_400_BAD_REQUEST)
 
