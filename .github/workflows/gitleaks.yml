@@ -22,7 +22,7 @@ jobs:
         with:
           ref: main
       - name: build and run docker
-        run: docker-compose up --detach
+        run: docker compose up --detach
 
       - name: ZAP Scan
         uses: zaproxy/action-full-scan@v0.12.0
