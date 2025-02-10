@@ -1,0 +1,11 @@
+on: push
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    permissions:
+      # required for all workflows
+      security-events: write
+    steps:
+      - name: Perform Precaution Analysis
+        uses: securesauce/precli-action@v1
