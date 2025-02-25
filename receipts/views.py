@@ -2,11 +2,10 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 
 from rest_framework import viewsets, status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, action
 from rest_framework.response import Response
-from rest_framework.decorators import action
 from rest_framework.authentication import TokenAuthentication
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from receipts import models
 from receipts.serializers import ItemSerializer, StoreSerializer, PurchaseRecordSerializer, UserSerializer
@@ -30,7 +29,7 @@ def register(request):
 
 class ItemViewSet(viewsets.ModelViewSet):
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     queryset = Item.objects.all()
     serializer_class = ItemSerializer
@@ -63,7 +62,7 @@ class ItemViewSet(viewsets.ModelViewSet):
 
 class StoreViewSet(viewsets.ModelViewSet):
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     queryset = Store.objects.all()
     serializer_class = StoreSerializer
@@ -96,7 +95,7 @@ class StoreViewSet(viewsets.ModelViewSet):
 
 class PurchaseRecordViewSet(viewsets.ModelViewSet):
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     queryset = PurchaseRecord.objects.all()
     serializer_class = PurchaseRecordSerializer
