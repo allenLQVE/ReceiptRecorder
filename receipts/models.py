@@ -72,6 +72,7 @@ class PurchaseRecord(models.Model):
     saving = models.FloatField()
     units = models.FloatField()
     detail = models.TextField(blank=True)
+    user = models.ForeignKey('auth.User', related_name='records', on_delete=models.CASCADE)
 
     class Meta:
         db_table = 'purchaseRecord'

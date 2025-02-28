@@ -100,6 +100,15 @@ class PurchaseRecordViewSet(viewsets.ModelViewSet):
     queryset = PurchaseRecord.objects.all()
     serializer_class = PurchaseRecordSerializer
 
+    def destroy(self, request, *args, **kwargs):
+        '''
+        [Override] Remove a record. 
+        '''
+        instance = self.get_object()
+        if (request.user.id != instance.user_id and not request.user.is_staff):
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        return super().destroy(request=request)
+
     def update(self, request, *args, **kwargs):
         '''
         [Override] Update a record. 
@@ -120,8 +129,12 @@ class PurchaseRecordViewSet(viewsets.ModelViewSet):
 
         if(not data.get("saving")):
             data["saving"] = 0
-
+        
         instance = self.get_object()
+        if (request.user.id != instance.user_id and not request.user.is_staff):
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        
+        data["user_id"] = instance.user.id
         serializer = self.get_serializer(instance, data=data)
         serializer.is_valid(raise_exception=True)
         super().perform_update(serializer)
@@ -149,7 +162,8 @@ class PurchaseRecordViewSet(viewsets.ModelViewSet):
 
         if(not data.get("saving")):
             data["saving"] = 0
-
+            
+        data["user_id"] = request.user.id
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         super().perform_create(serializer)

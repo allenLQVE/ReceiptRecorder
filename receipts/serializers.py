@@ -24,6 +24,8 @@ class PurchaseRecordSerializer(serializers.ModelSerializer):
     item = ItemSerializer(read_only=True)
     item_id = serializers.IntegerField(write_only=True)
 
+    user_id = serializers.IntegerField(write_only=True)
+
     class Meta:
         model = PurchaseRecord
         fields = ('id',
@@ -35,4 +37,5 @@ class PurchaseRecordSerializer(serializers.ModelSerializer):
                   'price', 
                   'saving', 
                   'units', 
-                  'detail')
+                  'detail',
+                  'user_id')
