@@ -65,8 +65,8 @@ class PurchaseRecord(models.Model):
     '''
     Record of shopped items (receipt)
     '''
-    store = models.ForeignKey(Store, on_delete=models.CASCADE)
-    item = models.ForeignKey(Item, on_delete=models.CASCADE)
+    store = models.ForeignKey(Store, on_delete=models.PROTECT)
+    item = models.ForeignKey(Item, on_delete=models.PROTECT)
     purchaseDate = models.DateField()
     price = models.FloatField()
     saving = models.FloatField()
