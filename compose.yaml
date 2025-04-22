@@ -1,11 +1,11 @@
-# services:
-#   web:
-#     build: .
-#     ports:
-#       - 8000:8000
-
-  front:
-    # path to frontend
-    build: ../FrontEnd/receiptrecorder_frontend
+services:
+  web:
+    build: .
     ports:
-      - 3000:3000
+      - 8000:8000
+
+  # front:
+  #   # path to frontend
+  #   build: ../FrontEnd/receiptrecorder_frontend
+  #   ports:
+  #     - 3000:3000
