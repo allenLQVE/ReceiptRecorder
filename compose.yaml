@@ -6,6 +6,6 @@ services:
 
   front:
     # path to frontend
-    build: ../FrontEnd/receiptrecorder_frontend
+    build: ./receiptrecorder_frontend
     ports:
       - 3000:3000
