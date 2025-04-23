@@ -164,7 +164,7 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 # dependencies
-/node_modules
+/receiptrecorder_frontend/node_modules
 /.pnp
 .pnp.js
 
