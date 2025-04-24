@@ -5,6 +5,7 @@ import axios from "axios";
 
 function Login(){
     const URL = process.env.REACT_APP_API_URL;
+    const TOKEN_EXPIRETIME = 5 * 60000;
 
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
@@ -14,16 +15,20 @@ function Login(){
     
     function handleLogin(e) {
         e.preventDefault();
-        axios.post(URL+ "login/", {
+        axios.post(URL+ "token/", {
             'username': username,
             'password': password
         }).then(
             response => {
-                sessionStorage.setItem('auth', 'Token ' + response.data.token);
+                console.log(response);
+                sessionStorage.setItem('access', 'Bearer ' + response.data.access);
+                sessionStorage.setItem('accessExpire', Date.now() + TOKEN_EXPIRETIME);
+                sessionStorage.setItem('refresh', response.data.refresh);
                 navigate("/");
             }
         ).catch(error => {
-            setWarning("User name doesn't match with password.")
+            console.log(error);
+            setWarning("User name doesn't match with password.");
         });
     }
 

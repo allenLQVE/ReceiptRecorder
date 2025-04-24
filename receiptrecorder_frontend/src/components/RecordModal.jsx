@@ -15,10 +15,12 @@ import { RecordContext } from '../context/RecordContext';
 import { ItemModal } from "./ItemModal";
 import { StoreModal } from "./StoreModal";
 import WarningModal from "./WarningModal";
+import checkToken from "../lib/checkToken";
+import refreshToken from "../lib/refreshToken";
 
 export const RecordModal = ({ itemList, storeList, isOpen, toggle, setRecords, isCreate, items, stores, setItems, setStores }) =>{
-    const AUTH = sessionStorage.getItem('auth');
-    const URL = process.env.REACT_APP_API_URL + "api/";
+    let token = sessionStorage.getItem('access');
+    const URL = process.env.REACT_APP_API_URL;
     
     const recordContext = useContext(RecordContext)
 
@@ -75,50 +77,70 @@ export const RecordModal = ({ itemList, storeList, isOpen, toggle, setRecords, i
             detail: recordContext.detail,
         }
 
-        if(isCreate){
-            // create the new record
-            axios.post(URL + "records/", data, {
-                headers: {
-                    'Authorization': AUTH
+        if (!checkToken()) {
+            refreshToken().then(() => {
+                token = sessionStorage.getItem("access");
+                if(isCreate){
+                    create(data);
+                } else {
+                    update(data);
                 }
-            }).then(
-                response => {
-                    setRecords(prev => [...prev, response.data]);
-                }
-            ).catch(error => {
-                console.error(error);
-                if (error.response.statusText === "Unauthorized") {
-                    setAlertBody("Please login to create a new record.");
-                    toggleAlert();
-                    // window.alert("")
-                }
-            })
+            }).catch(() => {
+                setAlertBody("Session time out, please login again.");
+                toggleAlert();
+                return;
+            });
         } else {
-            data['id'] = recordContext.id;
-
-            axios.put(`${URL}records/${recordContext.id}/`, data, {
-                headers: {
-                    'Authorization': AUTH
-                }
-            }).then(
-                response => {
-                    setRecords(records => records.map(record => record.id == recordContext.id ? response.data : record))
-                }
-            ).catch(error =>{
-                console.error(error);
-                if (error.response.statusText === "Unauthorized") {
-                    setAlertBody("Please login to modify a record.");
-                    toggleAlert();
-                    // window.alert("Please login to modify a record.");
-                }
-            })
+            if(isCreate){
+                create(data);
+            } else {
+                update(data);
+            }
         }
-
+        
         toggle();
 
         // set values back to default
         recordContext.reset();
     };
+
+    function update(data) {
+        console.log("update data");
+        data['id'] = recordContext.id;
+
+        axios.put(`${URL}records/${recordContext.id}/`, data, {
+            headers: {
+                'Authorization': token
+            }
+        }).then(
+            response => {
+                setRecords(records => records.map(record => record.id == recordContext.id ? response.data : record))
+            }
+        ).catch(error =>{
+            if (error.response.statusText === "Unauthorized") {
+                setAlertBody("Please login to modify a record.");
+                toggleAlert();
+            }
+        });
+    }
+
+    function create(data) {
+        // create the new record
+        axios.post(URL + "records/", data, {
+            headers: {
+                'Authorization': token
+            }
+        }).then(
+            response => {
+                setRecords(prev => [...prev, response.data]);
+            }
+        ).catch(error => {
+            if (error.response.statusText === "Unauthorized") {
+                setAlertBody("Please login to create a new record.");
+                toggleAlert();
+            }
+        });
+    }
 
     return (
         <>

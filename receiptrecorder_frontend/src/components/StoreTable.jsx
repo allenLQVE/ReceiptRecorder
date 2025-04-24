@@ -8,10 +8,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrashCan, faPen } from '@fortawesome/free-solid-svg-icons';
 import { StoreContext } from '../context/StoreContext';
 import WarningModal from './WarningModal';
+import checkToken from '../lib/checkToken';
+import refreshToken from '../lib/refreshToken';
 
 export const StoreTable = ({ stores, setStores, openStoreModal }) => {
-    const AUTH = sessionStorage.getItem('auth');
-    const URL = process.env.REACT_APP_API_URL + "api/";
+    let token = sessionStorage.getItem('access');
+    const URL = process.env.REACT_APP_API_URL;
 
     const storeContext = useContext(StoreContext);
     const [sortedRows, setRows] = useState(stores);
@@ -42,7 +44,7 @@ export const StoreTable = ({ stores, setStores, openStoreModal }) => {
         openStoreModal();
     }
 
-    const removeStore = async (e) => {
+    const removeStore = (e) => {
         if(!window.confirm("Are you sure to delete the store?")) {
             return;
         }
@@ -52,11 +54,25 @@ export const StoreTable = ({ stores, setStores, openStoreModal }) => {
         const storeName = document.getElementById('store ' + id).getElementsByClassName('name')[0].textContent;
         const data = {store:storeName}
         
-        var empty = false
-        await axios.get(URL + 'records/getRecordByStore/', {
+        if (!checkToken()) {
+            refreshToken().then(() => {
+                token = sessionStorage.getItem("access");
+                handleDelete(data, id);
+            }).catch(() => {
+                setAlertBody("Session time out, please login again.");
+                toggleAlert();
+                return;
+            });
+        } else {
+            handleDelete(data, id);
+        }
+    };
+
+    function handleDelete(data, id) {
+        axios.get(URL + 'records/getRecordByStore/', {
             params:data,
             headers: {
-                'Authorization': AUTH
+                'Authorization': token
             }
         }).then(
             response => {
@@ -64,35 +80,29 @@ export const StoreTable = ({ stores, setStores, openStoreModal }) => {
                     setAlertBody("The store is linking to at least one record. Please remove the associating records first.");
                     toggleAlert();
                 } else {
-                    empty = true
+                    axios.delete(`${URL}stores/${id}/`, {
+                        headers: {
+                            'Authorization': token
+                        }
+                    }).then(
+                        () => {
+                            setStores(
+                                stores.filter((store) => {
+                                    return store.id != id;
+                                })
+                            )
+                        }
+                    ).catch(error => {
+                        if (error.response.statusText === "Unauthorized") {
+                            setAlertBody("Please login to delete a store.");
+                            toggleAlert()
+                        }
+                    });
                 }
-        }
-        ).catch(error => {
+        }).catch(error => {
             console.error(error)
         });
-
-        if(empty){
-            axios.delete(`${URL}stores/${id}/`, {
-                headers: {
-                    'Authorization': AUTH
-                }
-            }).then(
-                () => {
-                    setStores(
-                        stores.filter((store) => {
-                            return store.id != id;
-                        })
-                    )
-                }
-            ).catch(error => {
-                console.error(error);
-                if (error.response.statusText === "Unauthorized") {
-                    setAlertBody("Please login to delete a store.");
-                    toggleAlert()
-                }
-            });
-        }
-    };
+    }
     
     return (
         <>

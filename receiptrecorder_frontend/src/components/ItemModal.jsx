@@ -14,10 +14,12 @@ import {
 } from "reactstrap";
 import { ItemContext } from '../context/ItemContext';
 import WarningModal from "./WarningModal";
+import checkToken from "../lib/checkToken";
+import refreshToken from "../lib/refreshToken";
 
 export const ItemModal = ({ isOpen, toggle, setItems, isCreate, items }) =>{
-    const AUTH = sessionStorage.getItem('auth');
-    const URL = process.env.REACT_APP_API_URL + "api/";
+    let token = sessionStorage.getItem('access');
+    const URL = process.env.REACT_APP_API_URL;
 
     const itemContext = useContext(ItemContext)
 
@@ -53,42 +55,25 @@ export const ItemModal = ({ isOpen, toggle, setItems, isCreate, items }) =>{
             desc: itemContext.desc,
         }
 
-        if(isCreate){
-            // create the new item
-            axios.post(URL + "items/", data, {
-                headers: {
-                    'Authorization': AUTH
+        if (!checkToken()) {
+            refreshToken().then(() => {
+                token = sessionStorage.getItem("access");
+                if(isCreate){
+                    create(data);
+                } else {
+                    update(data);
                 }
-            }).then(
-                response => {
-                    setItems(prev => [...prev, response.data]);
-                }
-            ).catch(error => {
-                console.error(error);
-                if (error.response.statusText === "Unauthorized") {
-                    setAlertBody("Please login to create a new item.");
-                    toggleAlert();
-                }
-            })
+            }).catch(() => {
+                setAlertBody("Session time out, please login again.");
+                toggleAlert();
+                return;
+            });
         } else {
-            // edit item
-            data['id'] = itemContext.id;
-
-            axios.put(`${URL}items/${itemContext.id}/`, data, {
-                headers: {
-                    'Authorization': AUTH
-                }
-            }).then(
-                response => {
-                    setItems(items => items.map(item => item.id == itemContext.id ? response.data : item))
-                }
-            ).catch(error =>{
-                console.error(error);
-                if (error.response.statusText === "Unauthorized") {
-                    setAlertBody("Please login to modify items.");
-                    toggleAlert();
-                }
-            })
+            if(isCreate){
+                create(data);
+            } else {
+                update(data);
+            }
         }
 
         toggle();
@@ -96,6 +81,46 @@ export const ItemModal = ({ isOpen, toggle, setItems, isCreate, items }) =>{
         // set values back to default
         itemContext.reset();
     };
+
+    function update(data) {
+        // edit item
+        data['id'] = itemContext.id;
+
+        axios.put(`${URL}items/${itemContext.id}/`, data, {
+            headers: {
+                'Authorization': token
+            }
+        }).then(
+            response => {
+                setItems(items => items.map(item => item.id == itemContext.id ? response.data : item))
+            }
+        ).catch(error =>{
+            console.error(error);
+            if (error.response.statusText === "Unauthorized") {
+                setAlertBody("Please login to modify items.");
+                toggleAlert();
+            }
+        });
+    }
+
+    function create(data) {
+        // create the new item
+        axios.post(URL + "items/", data, {
+            headers: {
+                'Authorization': token
+            }
+        }).then(
+            response => {
+                setItems(prev => [...prev, response.data]);
+            }
+        ).catch(error => {
+            console.error(error);
+            if (error.response.statusText === "Unauthorized") {
+                setAlertBody("Please login to create a new item.");
+                toggleAlert();
+            }
+        })
+    }
 
     return (
     <>

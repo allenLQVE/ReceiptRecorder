@@ -7,10 +7,12 @@ import WarningModal from './WarningModal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrashCan, faPen } from '@fortawesome/free-solid-svg-icons';
 import { ItemContext } from '../context/ItemContext';
+import checkToken from "../lib/checkToken";
+import refreshToken from "../lib/refreshToken";
 
 export const ItemTable = ({ items, setItems, openItemModal }) => {
-    const AUTH = sessionStorage.getItem('auth');
-    const URL = process.env.REACT_APP_API_URL + "api/";
+    let token = sessionStorage.getItem('access');
+    const URL = process.env.REACT_APP_API_URL;
 
     const itemContext = useContext(ItemContext);
     const [sortedRows, setRows] = useState(items);
@@ -41,7 +43,7 @@ export const ItemTable = ({ items, setItems, openItemModal }) => {
         openItemModal();
     }
 
-    const removeItem = async (e) => {
+    const removeItem = (e) => {
         if(!window.confirm("Are you sure to delete the item?")) {
             return;
         }
@@ -51,11 +53,25 @@ export const ItemTable = ({ items, setItems, openItemModal }) => {
         const itemName = document.getElementById('item '+ id).getElementsByClassName('name')[0].textContent;
         const data = {item:itemName}
         
-        var empty = false
-        await axios.get(URL + 'records/getRecordByItem/', {
+        if (!checkToken()) {
+            refreshToken().then(() => {
+                token = sessionStorage.getItem("access");
+                handleDelete(data, id);
+            }).catch(() => {
+                setAlertBody("Session time out, please login again.");
+                toggleAlert();
+                return;
+            });
+        } else {
+            handleDelete(data, id);
+        }
+    };
+
+    function handleDelete(data, id) {
+        axios.get(URL + 'records/getRecordByItem/', {
             params:data,
             headers: {
-                'Authorization': AUTH
+                'Authorization': token
             }
         }).then(
             response => {
@@ -63,33 +79,28 @@ export const ItemTable = ({ items, setItems, openItemModal }) => {
                     setAlertBody("The item is linking to at least one record. Please remove the associating records first.");
                     toggleAlert();
                 } else {
-                    empty = true
+                    axios.delete(`${URL}items/${id}/`, {
+                        headers: {
+                            'Authorization': token
+                        }
+                    }).then(
+                        setItems(
+                            items.filter((item) => {
+                                return item.id != id;
+                            })
+                        )
+                    ).catch(error => {
+                        if (error.response.statusText === "Unauthorized") {
+                            setAlertBody("Please login to delete a new item.");
+                            toggleAlert();
+                        }
+                    });
                 }
             }
         ).catch(error => {
             console.error(error);
         });
-
-        if(empty){
-            axios.delete(`${URL}items/${id}/`, {
-                headers: {
-                    'Authorization': AUTH
-                }
-            }).then(
-                setItems(
-                    items.filter((item) => {
-                        return item.id != id;
-                    })
-                )
-            ).catch(error => {
-                console.error(error);
-                if (error.response.statusText === "Unauthorized") {
-                    setAlertBody("Please login to delete a new item.");
-                    toggleAlert();
-                }
-            });
-        }
-    };
+    }
     
     return (
         <>

@@ -9,10 +9,12 @@ import { faTrashCan, faPen, faSortUp, faSortDown } from '@fortawesome/free-solid
 import { RecordContext } from '../context/RecordContext';
 
 import './RecordTable.css';
+import checkToken from '../lib/checkToken';
+import refreshToken from '../lib/refreshToken';
 
 export const RecordTable = ({ records, setRecords, openRecordModal, items, stores }) => {
-    const AUTH = sessionStorage.getItem('auth');
-    const URL = process.env.REACT_APP_API_URL + "api/";
+    let token = sessionStorage.getItem('access');
+    const URL = process.env.REACT_APP_API_URL;
 
     const recordContext = useContext(RecordContext);
     const [sortedRows, setRows] = useState(records);
@@ -111,9 +113,24 @@ export const RecordTable = ({ records, setRecords, openRecordModal, items, store
             return;
         }
 
-        axios.delete(`${URL}records/${e.currentTarget.value}/`, {
+        if (!checkToken()) {
+            refreshToken().then(() => {
+                token = sessionStorage.getItem("access");
+                handleDelete(targetId);
+            }).catch(() => {
+                setAlertBody("Session time out, please login again.");
+                toggleAlert();
+                return;
+            });
+        } else {
+            handleDelete(targetId);
+        }
+    };
+
+    function handleDelete(targetId) {
+        axios.delete(`${URL}records/${targetId}/`, {
             headers: {
-                'Authorization': AUTH
+                'Authorization': token
             }
         }
         ).then(() => {
@@ -122,16 +139,14 @@ export const RecordTable = ({ records, setRecords, openRecordModal, items, store
                     return record.id != targetId;
                 })
             )
-        }
-            
-        ).catch(error => {
+        }).catch(error => {
             console.error(error);
             if (error.response.statusText === "Unauthorized") {
                 setAlertBody("Please login to delete a record.");
                 toggleAlert();
             }
         });
-    };
+    }
     
     return (
         <>

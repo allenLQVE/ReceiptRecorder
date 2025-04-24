@@ -14,10 +14,12 @@ import {
 } from "reactstrap";
 import { StoreContext } from '../context/StoreContext';
 import WarningModal from "./WarningModal";
+import checkToken from "../lib/checkToken";
+import refreshToken from "../lib/refreshToken";
 
 export const StoreModal = ({ isOpen, toggle, setStores, isCreate, stores }) =>{
-    const AUTH = sessionStorage.getItem('auth');
-    const URL = process.env.REACT_APP_API_URL + "api/";
+    let token = sessionStorage.getItem('access');
+    const URL = process.env.REACT_APP_API_URL;
 
     const storeContext = useContext(StoreContext)
 
@@ -53,41 +55,25 @@ export const StoreModal = ({ isOpen, toggle, setStores, isCreate, stores }) =>{
             desc: storeContext.desc,
         }
 
-        if(isCreate){
-            // create the new store
-            axios.post(URL + "stores/", data, {
-                headers: {
-                    'Authorization': AUTH
+        if (!checkToken()) {
+            refreshToken().then(() => {
+                token = sessionStorage.getItem("access");
+                if(isCreate){
+                    create(data);
+                } else {
+                    update(data);
                 }
-            }).then(
-                response => {
-                    setStores(prev => [...prev, response.data]);
-                }
-            ).catch(error => {
-                console.error(error);
-                if (error.response.statusText === "Unauthorized") {
-                    window.alert("Please login to create a new store.");
-                }
-            })
+            }).catch(() => {
+                setAlertBody("Session time out, please login again.");
+                toggleAlert();
+                return;
+            });
         } else {
-            // edit store
-            data['id'] = storeContext.id;
-
-            axios.put(`${URL}stores/${storeContext.id}/`, data, {
-                headers:{
-                    'Authorization': AUTH
-                }
-            }).then(
-                response => {
-                    setStores(stores => stores.map(store => store.id == storeContext.id ? response.data : store))
-                }
-            ).catch(error =>{
-                console.error(error);
-                if (error.response.statusText === "Unauthorized") {
-                    setAlertBody("Please login to modify a store.");
-                    toggleAlert()
-                }
-            })
+            if(isCreate){
+                create(data);
+            } else {
+                update(data);
+            }
         }
 
         toggle();
@@ -95,6 +81,45 @@ export const StoreModal = ({ isOpen, toggle, setStores, isCreate, stores }) =>{
         // set values back to default
         storeContext.reset();
     };
+
+    function create(data) {
+        // create the new store
+        axios.post(URL + "stores/", data, {
+            headers: {
+                'Authorization': token
+            }
+        }).then(
+            response => {
+                setStores(prev => [...prev, response.data]);
+            }
+        ).catch(error => {
+            console.error(error);
+            if (error.response.statusText === "Unauthorized") {
+                window.alert("Please login to create a new store.");
+            }
+        });
+    }
+
+    function update(data) {
+        // edit store
+        data['id'] = storeContext.id;
+
+        axios.put(`${URL}stores/${storeContext.id}/`, data, {
+            headers:{
+                'Authorization': token
+            }
+        }).then(
+            response => {
+                setStores(stores => stores.map(store => store.id == storeContext.id ? response.data : store))
+            }
+        ).catch(error =>{
+            console.error(error);
+            if (error.response.statusText === "Unauthorized") {
+                setAlertBody("Please login to modify a store.");
+                toggleAlert()
+            }
+        });
+    }
 
     return (
     <>
