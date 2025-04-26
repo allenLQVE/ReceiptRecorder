@@ -2,3 +2,5 @@ receiptrecorder_frontend
 Dockerfile
 .dockerignore
 .gitignore
+.venv
+.scannerwork
