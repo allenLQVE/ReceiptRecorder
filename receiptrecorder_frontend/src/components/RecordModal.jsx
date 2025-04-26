@@ -25,9 +25,9 @@ export const RecordModal = ({ itemList, storeList, isOpen, toggle, setRecords, i
     const recordContext = useContext(RecordContext)
 
     // check if the input is valid
-    const [invalidItem, setItemValid] = useState(false);
-    const [invalidStore, setStoreValid] = useState(false);
-    const [invalidDate, setDateValid] = useState(false);
+    const [invalidItem, setInvalidItem] = useState(false);
+    const [invalidStore, setInvalidStore] = useState(false);
+    const [invalidDate, setInvalidDate] = useState(false);
 
     // control item and store modal while creating new record
     const [itemModal, setItemModal] = useState(false);
@@ -41,25 +41,25 @@ export const RecordModal = ({ itemList, storeList, isOpen, toggle, setRecords, i
 
     const resetEverything = () =>{
         recordContext.reset();
-        setItemValid(false);
-        setStoreValid(false);
-        setDateValid(false);
+        setInvalidItem(false);
+        setInvalidStore(false);
+        setInvalidDate(false);
         toggle();
     }
 
     const saveRecord = (e) =>{
         // check if the record has required fields
-        var invalid = false;
+        let invalid = false;
         if(recordContext.store == ""){
-            setStoreValid(true);
+            setInvalidStore(true);
             invalid = true;
         }
         if(recordContext.item == ""){
-            setItemValid(true);
+            setInvalidItem(true);
             invalid = true;
         }
         if(recordContext.purchaseDate == null){
-            setDateValid(true);
+            setInvalidDate(true);
             invalid = true;
         }
 
@@ -88,14 +88,11 @@ export const RecordModal = ({ itemList, storeList, isOpen, toggle, setRecords, i
             }).catch(() => {
                 setAlertBody("Session time out, please login again.");
                 toggleAlert();
-                return;
             });
-        } else {
-            if(isCreate){
-                create(data);
-            } else {
-                update(data);
-            }
+        } else if(isCreate){
+            create(data);
+        }else {
+            update(data);
         }
         
         toggle();
@@ -105,7 +102,6 @@ export const RecordModal = ({ itemList, storeList, isOpen, toggle, setRecords, i
     };
 
     function update(data) {
-        console.log("update data");
         data['id'] = recordContext.id;
 
         axios.put(`${URL}records/${recordContext.id}/`, data, {
@@ -149,7 +145,7 @@ export const RecordModal = ({ itemList, storeList, isOpen, toggle, setRecords, i
                 <ModalBody>
                     <div>
                         <FormGroup>
-                        <div className='float-right'><button className='btn btn-primary btn-sm' onClick={toggleItemModal}>create item</button></div>
+                        <div className='float-end mx-2 my-1'><button className='btn btn-primary btn-sm' onClick={toggleItemModal}>create item</button></div>
                         <Label for="item">Item </Label>
                         <Input
                             type="select"
@@ -157,7 +153,7 @@ export const RecordModal = ({ itemList, storeList, isOpen, toggle, setRecords, i
                             name="item"
                             onChange={(e) => {
                                 recordContext.setItem(e.target.value);
-                                setItemValid(false);
+                                setInvalidItem(false);
                             }}
                             invalid={invalidItem}
                             defaultValue={recordContext.item}
@@ -169,7 +165,7 @@ export const RecordModal = ({ itemList, storeList, isOpen, toggle, setRecords, i
                         </Input>
                         </FormGroup>
                         <FormGroup>
-                        <div className='float-right'><button className='btn btn-primary btn-sm' onClick={toggleStoreModal}>create store</button></div>
+                        <div className='float-end mx-2 my-1'><button className='btn btn-primary btn-sm' onClick={toggleStoreModal}>create store</button></div>
                         <Label for="store">Store</Label>
                         <Input
                             type="select"
@@ -177,7 +173,7 @@ export const RecordModal = ({ itemList, storeList, isOpen, toggle, setRecords, i
                             name="store"
                             onChange={(e) => {
                                 recordContext.setStore(e.target.value);
-                                setStoreValid(false);
+                                setInvalidStore(false);
                             }}
                             invalid={invalidStore}
                             defaultValue={recordContext.store}
@@ -197,7 +193,7 @@ export const RecordModal = ({ itemList, storeList, isOpen, toggle, setRecords, i
                             type="date"
                             onChange={(e) => {
                                 recordContext.setPurchaseDate(e.target.value);
-                                setDateValid(false);
+                                setInvalidDate(false);
                             }}
                             invalid={invalidDate}
                             defaultValue={recordContext.purchaseDate}

@@ -1,6 +1,5 @@
 /* eslint-disable eqeqeq */
-import React, { useContext, useEffect } from 'react';
-import { useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import axios from "axios";
 import WarningModal from './WarningModal';
 
@@ -15,7 +14,7 @@ export const ItemTable = ({ items, setItems, openItemModal }) => {
     const URL = process.env.REACT_APP_API_URL;
 
     const itemContext = useContext(ItemContext);
-    const [sortedRows, setRows] = useState(items);
+    const [sortedRows, setSortedRows] = useState(items);
     
     const [alert, setAlert] = useState(false);
     const [alertBody, setAlertBody] = useState("");
@@ -23,7 +22,7 @@ export const ItemTable = ({ items, setItems, openItemModal }) => {
 
     useEffect(() => {
         if(items){
-            setRows(items);
+            setSortedRows(items);
         }
     }, [items]);
 
@@ -44,9 +43,9 @@ export const ItemTable = ({ items, setItems, openItemModal }) => {
     }
 
     const removeItem = (e) => {
-        if(!window.confirm("Are you sure to delete the item?")) {
-            return;
-        }
+        // if(!window.confirm("Are you sure to delete the item?")) {
+        //     return;
+        // }
 
         // make sure the item is not linking to any record
         const id = e.currentTarget.value;
@@ -60,7 +59,6 @@ export const ItemTable = ({ items, setItems, openItemModal }) => {
             }).catch(() => {
                 setAlertBody("Session time out, please login again.");
                 toggleAlert();
-                return;
             });
         } else {
             handleDelete(data, id);
@@ -97,9 +95,7 @@ export const ItemTable = ({ items, setItems, openItemModal }) => {
                     });
                 }
             }
-        ).catch(error => {
-            console.error(error);
-        });
+        );
     }
     
     return (
@@ -120,7 +116,7 @@ export const ItemTable = ({ items, setItems, openItemModal }) => {
                             <td key='unit' className='unit'>{row.unit}</td>
                             <td key='desc' className='desc'>{row.desc}</td>
                             <td key='action'>
-                                <button className="btn btn-primary mr-2" onClick={editItem} value={row.id}>
+                                <button className="btn btn-primary me-2" onClick={editItem} value={row.id}>
                                     <FontAwesomeIcon icon={faPen}/>
                                 </button>
                                 <button className="btn btn-danger" onClick={removeItem} value={row.id}>

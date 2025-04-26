@@ -14,10 +14,14 @@ import { StoreModal } from './components/StoreModal';
 import { RecordProvider } from './context/RecordContext';
 import { ItemProvider } from './context/ItemContext';
 import { StoreProvider } from './context/StoreContext';
+import logout from './lib/logout';
+
+import { Helmet } from "react-helmet-async";
 
 function App() {
     const URL = process.env.REACT_APP_API_URL;
     const navigate = useNavigate();
+    const [token, setToken] = useState(sessionStorage.getItem("access"));
 
     // data from api
     const [records, setRecords] = useState();
@@ -41,23 +45,17 @@ function App() {
             response => {
                 setRecords(response.data);
             }
-        ).catch(error => {
-            console.error(error);
-        })
+        )
         axios.get(URL + 'items/').then(
             response => {
                 setItems(response.data);
             }
-        ).catch(error => {
-            console.error(error);
-        })
+        )
         axios.get(URL + 'stores/').then(
             response => {
                 setStores(response.data);
             }
-        ).catch(error => {
-            console.error(error);
-        })
+        )
     }, [])
 
     // toggle for modals
@@ -98,11 +96,14 @@ function App() {
         }
         const recordTableTag = document.getElementById("recordTableTag");
         recordTableTag.classList.remove("text-muted");
+        recordTableTag.classList.add("text-decoration-underline");
         const storeTableTag = document.getElementById("storeTableTag");
         storeTableTag.classList.add("text-muted");
+        storeTableTag.classList.remove("text-decoration-underline");
         const itemTableTag = document.getElementById("itemTableTag");
         itemTableTag.classList.add("text-muted");
-
+        itemTableTag.classList.remove("text-decoration-underline");
+        
         setStoreTable(false);
         setItemTable(false);
         setRecordTable(true);
@@ -113,10 +114,13 @@ function App() {
         }
         const recordTableTag = document.getElementById("recordTableTag");
         recordTableTag.classList.add("text-muted");
+        recordTableTag.classList.remove("text-decoration-underline");
         const storeTableTag = document.getElementById("storeTableTag");
         storeTableTag.classList.add("text-muted");
+        storeTableTag.classList.remove("text-decoration-underline");
         const itemTableTag = document.getElementById("itemTableTag");
         itemTableTag.classList.remove("text-muted");
+        itemTableTag.classList.add("text-decoration-underline");
 
         setStoreTable(false);
         setItemTable(true);
@@ -128,37 +132,60 @@ function App() {
         }
         const recordTableTag = document.getElementById("recordTableTag");
         recordTableTag.classList.add("text-muted");
+        recordTableTag.classList.remove("text-decoration-underline");
         const storeTableTag = document.getElementById("storeTableTag");
         storeTableTag.classList.remove("text-muted");
+        storeTableTag.classList.add("text-decoration-underline");
         const itemTableTag = document.getElementById("itemTableTag");
         itemTableTag.classList.add("text-muted");
+        itemTableTag.classList.remove("text-decoration-underline");
 
         setStoreTable(true);
         setItemTable(false);
         setRecordTable(false);
     }
 
+    function handleLogout() {
+        logout();
+        setToken(null);
+    }
+
     return (
         <RecordProvider><ItemProvider><StoreProvider>
+            <Helmet>
+                <meta
+                httpEquiv="Content-Security-Policy"
+                content={`
+                            default-src 'self' http://127.0.0.1:8000/ 'unsafe-inline';
+                            script-src 'self';
+                            img-src 'self';
+                            media-src 'self';
+                        `}
+                ></meta>
+            </Helmet>
             <div className='container'>
                 <div className='records'>
                     <div className='container'>
                         <nav className='navbar navbar-default navbar-fixed-top pl-0'>
                             <div className='container pl-0'>
                                 <div className="navbar-header">
-                                    <button className="btn shadow-none pl-0" onClick={openRecordTable}>
-                                        <h1 id="recordTableTag">Records</h1>
+                                    <button className="btn shadow-none pl-0 border-0" onClick={openRecordTable}>
+                                        <h1 id="recordTableTag" className='text-decoration-underline'>Records</h1>
                                     </button>
-                                    <button className="btn shadow-none" onClick={openItemTable}>
+                                    <button className="btn shadow-none border-0" onClick={openItemTable}>
                                         <h1 className="text-muted" id="itemTableTag">Items</h1>
                                     </button>
-                                    <button className="btn shadow-none" onClick={openStoreTable}>
+                                    <button className="btn shadow-none border-0" onClick={openStoreTable}>
                                         <h1 className="text-muted" id="storeTableTag">Stores</h1>
                                     </button>
                                 </div>
                                 <div>
-                                    <button className="btn btn-primary mt-2" onClick={createModal}>Create</button>
-                                    <button className="btn btn-secondary mt-2 ml-2" onClick={() => {navigate("/login");}} id='loginBtn'>Login</button>
+                                    <button className="btn btn-primary mt-2 mx-2" onClick={createModal}>Create</button>
+                                    { token === null ?
+                                        <button className="btn btn-success mt-2" onClick={() => {navigate("/login");}} id='loginBtn'>Login</button>
+                                        :
+                                        <button className="btn btn-secondary mt-2" onClick={handleLogout}>Logout</button>
+                                    }
                                 </div>
                             </div>
                         </nav>

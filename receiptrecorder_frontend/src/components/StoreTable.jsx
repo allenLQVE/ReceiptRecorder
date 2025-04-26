@@ -1,8 +1,6 @@
 /* eslint-disable eqeqeq */
-import React, { useContext, useEffect } from 'react';
-import { useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import axios from "axios";
-// import { Modal, ModalBody, ModalHeader } from "reactstrap";
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrashCan, faPen } from '@fortawesome/free-solid-svg-icons';
@@ -16,7 +14,7 @@ export const StoreTable = ({ stores, setStores, openStoreModal }) => {
     const URL = process.env.REACT_APP_API_URL;
 
     const storeContext = useContext(StoreContext);
-    const [sortedRows, setRows] = useState(stores);
+    const [sortedRows, setSortedRows] = useState(stores);
 
     const [alert, setAlert] = useState(false);
     const [alertBody, setAlertBody] = useState("");
@@ -24,7 +22,7 @@ export const StoreTable = ({ stores, setStores, openStoreModal }) => {
 
     useEffect(() => {
         if(stores){
-            setRows(stores);
+            setSortedRows(stores);
         }
     }, [stores]);
 
@@ -45,9 +43,9 @@ export const StoreTable = ({ stores, setStores, openStoreModal }) => {
     }
 
     const removeStore = (e) => {
-        if(!window.confirm("Are you sure to delete the store?")) {
-            return;
-        }
+        // if(!window.confirm("Are you sure to delete the store?")) {
+        //     return;
+        // }
 
         // make sure the store is not linking to any record
         const id = e.currentTarget.value;
@@ -61,7 +59,6 @@ export const StoreTable = ({ stores, setStores, openStoreModal }) => {
             }).catch(() => {
                 setAlertBody("Session time out, please login again.");
                 toggleAlert();
-                return;
             });
         } else {
             handleDelete(data, id);
@@ -99,8 +96,6 @@ export const StoreTable = ({ stores, setStores, openStoreModal }) => {
                         }
                     });
                 }
-        }).catch(error => {
-            console.error(error)
         });
     }
     
@@ -122,7 +117,7 @@ export const StoreTable = ({ stores, setStores, openStoreModal }) => {
                             <td key='address' className='address'>{row.address}</td>
                             <td key='desc' className='desc'>{row.desc}</td>
                             <td key='action'>
-                                <button className="btn btn-primary mr-2" onClick={editStore} value={row.id}>
+                                <button className="btn btn-primary me-2" onClick={editStore} value={row.id}>
                                     <FontAwesomeIcon icon={faPen}/>
                                 </button>
                                 <button className="btn btn-danger" onClick={removeStore} value={row.id}>

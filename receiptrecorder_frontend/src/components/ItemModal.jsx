@@ -24,7 +24,7 @@ export const ItemModal = ({ isOpen, toggle, setItems, isCreate, items }) =>{
     const itemContext = useContext(ItemContext)
 
     // check if the input is valid
-    const [invalidName, setNameValid] = useState(false);
+    const [invalidName, setInvalidName] = useState(false);
 
     const [alert, setAlert] = useState(false);
     const [alertBody, setAlertBody] = useState("");
@@ -32,19 +32,19 @@ export const ItemModal = ({ isOpen, toggle, setItems, isCreate, items }) =>{
 
     const resetEverything = () =>{
         itemContext.reset();
-        setNameValid(false);
+        setInvalidName(false);
         toggle();
     }
 
     const saveItem = (e) =>{
         // check if the input is valid
         if(itemContext.name == ""){
-            setNameValid(true);
+            setInvalidName(true);
             return;
         }
-        for(var i in items){
+        for(let i in items){
             if(items[i].name == itemContext.name && items[i].id != itemContext.id){
-                setNameValid(true);
+                setInvalidName(true);
                 return;
             }
         }
@@ -66,14 +66,11 @@ export const ItemModal = ({ isOpen, toggle, setItems, isCreate, items }) =>{
             }).catch(() => {
                 setAlertBody("Session time out, please login again.");
                 toggleAlert();
-                return;
             });
+        } else if (isCreate) {
+            create(data);
         } else {
-            if(isCreate){
-                create(data);
-            } else {
-                update(data);
-            }
+            update(data);
         }
 
         toggle();
@@ -95,7 +92,6 @@ export const ItemModal = ({ isOpen, toggle, setItems, isCreate, items }) =>{
                 setItems(items => items.map(item => item.id == itemContext.id ? response.data : item))
             }
         ).catch(error =>{
-            console.error(error);
             if (error.response.statusText === "Unauthorized") {
                 setAlertBody("Please login to modify items.");
                 toggleAlert();
@@ -114,7 +110,6 @@ export const ItemModal = ({ isOpen, toggle, setItems, isCreate, items }) =>{
                 setItems(prev => [...prev, response.data]);
             }
         ).catch(error => {
-            console.error(error);
             if (error.response.statusText === "Unauthorized") {
                 setAlertBody("Please login to create a new item.");
                 toggleAlert();
@@ -136,7 +131,7 @@ export const ItemModal = ({ isOpen, toggle, setItems, isCreate, items }) =>{
                         name="name"
                         onChange={(e) => {
                             itemContext.setName(e.target.value);
-                            setNameValid(false);
+                            setInvalidName(false);
                         }}
                         invalid={invalidName}
                         defaultValue={itemContext.name}

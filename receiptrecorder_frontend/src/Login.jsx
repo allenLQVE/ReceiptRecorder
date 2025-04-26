@@ -20,15 +20,13 @@ function Login(){
             'password': password
         }).then(
             response => {
-                console.log(response);
                 sessionStorage.setItem('access', 'Bearer ' + response.data.access);
                 sessionStorage.setItem('accessExpire', Date.now() + TOKEN_EXPIRETIME);
                 sessionStorage.setItem('refresh', response.data.refresh);
                 navigate("/");
             }
-        ).catch(error => {
-            console.log(error);
-            setWarning("User name doesn't match with password.");
+        ).catch(() => {
+            setWarning("Login failed, please try again.");
         });
     }
 
@@ -79,44 +77,44 @@ function Login(){
                     handleLogin(e);
                 }
             }
-        ).catch(error => {
+        ).catch(() => {
             setWarning("Invalid user name.");
         });
     }
 
     return <>
         <div id='loginPane' className={'d-flex justify-content-center align-items-center flex-column'} style={{height:"100vh"}}>
-                <label>
+                <label className='my-1'>
                     User Name <input type='text' name='userName' value={username} onChange={(e) => setUsername(e.target.value)} />
                 </label>
-                <label>
+                <label className='my-1'>
                     Password <input type='password' name='password' value={password} onChange={(e) => setPassword(e.target.value)} />
                 </label>
                 <p className='text-danger'>{warning}</p>
                 <div>
-                    <button onClick={(e) => handleLogin(e)} className='btn btn-primary mr-3'>Login</button>
-                    <button onClick={(e) => showRegister(e)} className='btn btn-secondary mr-3'>Register</button>
+                    <button onClick={(e) => handleLogin(e)} className='btn btn-primary me-3'>Login</button>
+                    <button onClick={(e) => showRegister(e)} className='btn btn-secondary me-3'>Register</button>
                     
                 </div>
                 <div className='mt-2'>
-                    <button onClick={() => {navigate("/");}} className='btn btn-link mr-3'>Continue as a guest</button>
+                    <button onClick={() => {navigate("/");}} className='btn btn-link me-3'>Continue as a guest</button>
                 </div>
                 
         </div>
         <div id='registerPane' className='d-none justify-content-center align-items-center flex-column' style={{height:"100vh"}}>
-                <label>
+                <label className='my-1'>
                     User Name <input type='text' name='userName' value={username} onChange={(e) => setUsername(e.target.value)} />
                 </label>
-                <label>
+                <label className='my-1'>
                     Password <input type='password' name='password' value={password} onChange={(e) => setPassword(e.target.value)} />
                 </label>
-                <label>
+                <label className='my-1'>
                     Confirm Password <input type='password' name='confirmPassword' value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
                 </label>
                 <p className='text-danger'>{warning}</p>
                 <div>
-                    <button onClick={(e) => handleRegister(e)} className='btn btn-primary mr-3'>Register</button>
-                    <button onClick={(e) => showLogin(e)} className='btn btn-secondary mr-3'>Login</button>
+                    <button onClick={(e) => handleRegister(e)} className='btn btn-primary me-3'>Register</button>
+                    <button onClick={(e) => showLogin(e)} className='btn btn-secondary me-3'>Login</button>
                 </div>
         </div>
     </>

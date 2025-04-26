@@ -24,7 +24,7 @@ export const StoreModal = ({ isOpen, toggle, setStores, isCreate, stores }) =>{
     const storeContext = useContext(StoreContext)
 
     // check if the input is valid
-    const [invalidName, setNameValid] = useState(false);
+    const [invalidName, setInvalidName] = useState(false);
 
     const [alert, setAlert] = useState(false);
     const [alertBody, setAlertBody] = useState("");
@@ -32,19 +32,19 @@ export const StoreModal = ({ isOpen, toggle, setStores, isCreate, stores }) =>{
 
     const resetEverything = () =>{
         storeContext.reset();
-        setNameValid(false);
+        setInvalidName(false);
         toggle();
     }
 
     const saveStore = (e) =>{
         // check if the input is valid
         if(storeContext.name == ""){
-            setNameValid(true);
+            setInvalidName(true);
             return;
         }
-        for(var i in stores){
+        for(let i in stores){
             if(stores[i].name == storeContext.name && stores[i].id != storeContext.id){
-                setNameValid(true);
+                setInvalidName(true);
                 return;
             }
         }
@@ -66,14 +66,11 @@ export const StoreModal = ({ isOpen, toggle, setStores, isCreate, stores }) =>{
             }).catch(() => {
                 setAlertBody("Session time out, please login again.");
                 toggleAlert();
-                return;
             });
+        } else if(isCreate){
+            create(data);
         } else {
-            if(isCreate){
-                create(data);
-            } else {
-                update(data);
-            }
+            update(data);
         }
 
         toggle();
@@ -93,7 +90,6 @@ export const StoreModal = ({ isOpen, toggle, setStores, isCreate, stores }) =>{
                 setStores(prev => [...prev, response.data]);
             }
         ).catch(error => {
-            console.error(error);
             if (error.response.statusText === "Unauthorized") {
                 window.alert("Please login to create a new store.");
             }
@@ -113,7 +109,6 @@ export const StoreModal = ({ isOpen, toggle, setStores, isCreate, stores }) =>{
                 setStores(stores => stores.map(store => store.id == storeContext.id ? response.data : store))
             }
         ).catch(error =>{
-            console.error(error);
             if (error.response.statusText === "Unauthorized") {
                 setAlertBody("Please login to modify a store.");
                 toggleAlert()
@@ -135,7 +130,7 @@ export const StoreModal = ({ isOpen, toggle, setStores, isCreate, stores }) =>{
                         name="name"
                         onChange={(e) => {
                             storeContext.setName(e.target.value);
-                            setNameValid(false);
+                            setInvalidName(false);
                         }}
                         invalid={invalidName}
                         defaultValue={storeContext.name}

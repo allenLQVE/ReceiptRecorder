@@ -5,18 +5,21 @@ import App from './App';
 import Login from './Login';
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import reportWebVitals from './reportWebVitals';
+import { HelmetProvider } from "react-helmet-async";
 
 import 'bootstrap/dist/css/bootstrap.css';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <BrowserRouter>
-      <Routes>
-        <Route path="login" element={<Login />}/>
-        <Route index element={<App />}/>
-      </Routes>
-    </BrowserRouter>
+    <HelmetProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="login" element={<Login />}/>
+          <Route index element={<App />}/>
+        </Routes>
+      </BrowserRouter>
+    </HelmetProvider>
   </React.StrictMode>
 );
 

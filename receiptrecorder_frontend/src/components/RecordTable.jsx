@@ -1,6 +1,5 @@
 /* eslint-disable eqeqeq */
-import React, { useContext, useEffect } from 'react';
-import { useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import axios from "axios";
 import WarningModal from './WarningModal';
 
@@ -17,7 +16,7 @@ export const RecordTable = ({ records, setRecords, openRecordModal, items, store
     const URL = process.env.REACT_APP_API_URL;
 
     const recordContext = useContext(RecordContext);
-    const [sortedRows, setRows] = useState(records);
+    const [sortedRows, setSortedRows] = useState(records);
     const [asc, setAsc] = useState(true);
 
     const [alert, setAlert] = useState(false);
@@ -26,12 +25,12 @@ export const RecordTable = ({ records, setRecords, openRecordModal, items, store
 
     useEffect(() => {
         if(records){
-            setRows(records);
+            setSortedRows(records);
         }
     }, [records]);
 
     const reverse = () => {
-        setRows([...sortedRows].reverse());
+        setSortedRows([...sortedRows].reverse());
         setAsc(!asc);
     }
 
@@ -39,31 +38,31 @@ export const RecordTable = ({ records, setRecords, openRecordModal, items, store
         const col = document.getElementById('sortRow').value;
         const order = asc ? 1 : -1
         if(col == 'default'){
-            setRows([...sortedRows.sort((a, b) => {
+            setSortedRows([...sortedRows.sort((a, b) => {
                 return a.id > b.id ? order : -1 * order
             })])
         } else if (col == 'item') {
-            setRows([...sortedRows.sort((a, b) => {
+            setSortedRows([...sortedRows.sort((a, b) => {
                 return a.item.name > b.item.name ? order : -1 * order
             })])
         } else if (col == 'store') {
-            setRows([...sortedRows.sort((a, b) => {
+            setSortedRows([...sortedRows.sort((a, b) => {
                 return a.store.name > b.store.name ? order : -1 * order
             })])
         } else if (col == 'unitPrice') {
-            setRows([...sortedRows.sort((a, b) => {
+            setSortedRows([...sortedRows.sort((a, b) => {
                 return (a.price / a.units) > (b.price / b.units) ? order : -1 * order
             })])
         } else if (col == 'unitPriceWOS') {
-            setRows([...sortedRows.sort((a, b) => {
+            setSortedRows([...sortedRows.sort((a, b) => {
                 return ((a.price - a.saving) / a.units) > ((b.price - b.saving) / b.units) ? order : -1 * order
             })])
         } else if (col == 'paid') {
-            setRows([...sortedRows.sort((a, b) => {
+            setSortedRows([...sortedRows.sort((a, b) => {
                 return (a.price - a.saving) > (b.price - b.saving) ? order : -1 * order
             })])
         } else {
-            setRows([...sortedRows.sort((a, b) => {
+            setSortedRows([...sortedRows.sort((a, b) => {
                 return a[col] > b[col] ? order : -1 * order
             })])
         }
@@ -74,17 +73,17 @@ export const RecordTable = ({ records, setRecords, openRecordModal, items, store
         const storeFilter = document.getElementById('storeFilter').value;
 
         if(storeFilter == 'select store' && itemFilter == 'select item'){
-            setRows(records);
+            setSortedRows(records);
         } else if (storeFilter == 'select store') {
-            setRows(records.filter((record) => {
+            setSortedRows(records.filter((record) => {
                 return record.item.name == itemFilter;
             }))
         } else if (itemFilter == 'select item') {
-            setRows(records.filter((record) => {
+            setSortedRows(records.filter((record) => {
                 return record.store.name == storeFilter;
             }))
         } else {
-            setRows(records.filter((record) => {
+            setSortedRows(records.filter((record) => {
                 return record.store.name == storeFilter && record.item.name == itemFilter;
             }))
         }
@@ -109,9 +108,9 @@ export const RecordTable = ({ records, setRecords, openRecordModal, items, store
 
     const removeRecord = (e) => {
         const targetId = e.currentTarget.value
-        if(!window.confirm("Are you sure to delete the record?")) {
-            return;
-        }
+        // if(!window.confirm("Are you sure to delete the record?")) {
+        //     return;
+        // }
 
         if (!checkToken()) {
             refreshToken().then(() => {
@@ -120,7 +119,6 @@ export const RecordTable = ({ records, setRecords, openRecordModal, items, store
             }).catch(() => {
                 setAlertBody("Session time out, please login again.");
                 toggleAlert();
-                return;
             });
         } else {
             handleDelete(targetId);
@@ -140,7 +138,6 @@ export const RecordTable = ({ records, setRecords, openRecordModal, items, store
                 })
             )
         }).catch(error => {
-            console.error(error);
             if (error.response.statusText === "Unauthorized") {
                 setAlertBody("Please login to delete a record.");
                 toggleAlert();
@@ -152,23 +149,23 @@ export const RecordTable = ({ records, setRecords, openRecordModal, items, store
         <>
             <div>
                 <div>
-                    <label className='font-weight-bold'>Filter By Item</label>
-                    <select id='itemFilter' className='ml-1 width-auto' onChange={filter}>
+                    <label className='fw-bold'>Filter By Item</label>
+                    <select id='itemFilter' className='mx-1 width-auto' onChange={filter}>
                         <option key={'default'}>select item</option>
                         {items.map((item) => (
                             <option key={item.id} id={item.id}>{item.name}</option>
                         ))}
                     </select>
-                    <label className='font-weight-bold ml-3'>Filter By Store</label>
-                    <select id='storeFilter' className='ml-1 width-auto' onChange={filter}>
+                    <label className='fw-bold ms-2'>Filter By Store</label>
+                    <select id='storeFilter' className='m-1 width-auto' onChange={filter}>
                         <option key={'default'}>select store</option>
                         {stores.map((store) => (
                                 <option key={store.id} id={store.id}>{store.name}</option>
                         ))}
                     </select>
-                    <div className='float-right'>
-                        <label className='font-weight-bold'>Sort By</label>
-                        <select className='ml-2 width-auto' id='sortRow' onChange={sortRow}>
+                    <div className='float-end'>
+                        <label className='fw-bold'>Sort By</label>
+                        <select className='ms-2 width-auto' id='sortRow' onChange={sortRow}>
                             <option key='default' value='default'>select column</option>
                             <option key='item' value='item'>Item</option>
                             <option key='store' value='store'>Store</option>
@@ -217,7 +214,7 @@ export const RecordTable = ({ records, setRecords, openRecordModal, items, store
                             <td key='detail' className='detail'>{row.detail}</td>
                             {/* add a col for removing or update record */}
                             <td key='action'>
-                                <button className="btn btn-primary mr-2" onClick={editRecord} value={row.id}>
+                                <button className="btn btn-primary me-2" onClick={editRecord} value={row.id}>
                                     <FontAwesomeIcon icon={faPen}/>
                                 </button>
                                 <button className="btn btn-danger" onClick={removeRecord} value={row.id}>
