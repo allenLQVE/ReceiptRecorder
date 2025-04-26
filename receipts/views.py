@@ -10,6 +10,8 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from receipts import models
 from receipts.serializers import ItemSerializer, StoreSerializer, PurchaseRecordSerializer, UserSerializer
 
+import bleach
+
 Item = models.Item
 Store = models.Store
 PurchaseRecord = models.PurchaseRecord
@@ -20,8 +22,8 @@ def register(request):
     data = UserSerializer(data=request.data)
     if data.is_valid():
         User.objects.create_user(
-            username = data['username'].value,
-            password = data['password'].value
+            username = bleach.clean(data['username'].value),
+            password = bleach.clean(data['password'].value)
         )
         return Response(status=status.HTTP_201_CREATED)
     else:
@@ -33,6 +35,36 @@ class ItemViewSet(viewsets.ModelViewSet):
 
     queryset = Item.objects.all()
     serializer_class = ItemSerializer
+
+    def update(self, request, *args, **kwargs):
+        '''
+        [Override] Update a item.
+        '''
+        data = request.data
+
+        data["name"] = bleach.clean(data["name"])
+        data["desc"] = bleach.clean(data["desc"])
+        data["unit"] = bleach.clean(data["unit"])
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=data)
+        serializer.is_valid(raise_exception=True)
+        super().perform_update(serializer)
+        return Response(serializer.data)
+
+    def create(self, request, *args, **kwargs):
+        '''
+        [Override] Create an object of item.
+        '''
+        data = request.data
+            
+        data["name"] = bleach.clean(data["name"])
+        data["desc"] = bleach.clean(data["desc"])
+        data["unit"] = bleach.clean(data["unit"])
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        super().perform_create(serializer)
+        headers = super().get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     @action(detail=False)
     def getItemByName(self, request, *args, **kwargs):
@@ -66,6 +98,36 @@ class StoreViewSet(viewsets.ModelViewSet):
 
     queryset = Store.objects.all()
     serializer_class = StoreSerializer
+
+    def update(self, request, *args, **kwargs):
+        '''
+        [Override] Update a store.
+        '''
+        data = request.data
+
+        data["name"] = bleach.clean(data["name"])
+        data["desc"] = bleach.clean(data["desc"])
+        data["address"] = bleach.clean(data["address"])
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=data)
+        serializer.is_valid(raise_exception=True)
+        super().perform_update(serializer)
+        return Response(serializer.data)
+
+    def create(self, request, *args, **kwargs):
+        '''
+        [Override] Create an object of item.
+        '''
+        data = request.data
+            
+        data["name"] = bleach.clean(data["name"])
+        data["desc"] = bleach.clean(data["desc"])
+        data["address"] = bleach.clean(data["address"])
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        super().perform_create(serializer)
+        headers = super().get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     @action(detail=False)
     def getStoreByName(self, request, *args, **kwargs):
@@ -135,6 +197,7 @@ class PurchaseRecordViewSet(viewsets.ModelViewSet):
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         
         data["user_id"] = instance.user.id
+        data["detail"] = bleach.clean(data["detail"])
         serializer = self.get_serializer(instance, data=data)
         serializer.is_valid(raise_exception=True)
         super().perform_update(serializer)
@@ -148,7 +211,6 @@ class PurchaseRecordViewSet(viewsets.ModelViewSet):
         Fields will be filled if blank.
         '''
         data = request.data
-        # data._mutable = True
 
         if(data.get("store") and data.get("item")):
             store = data.get("store")
@@ -164,6 +226,7 @@ class PurchaseRecordViewSet(viewsets.ModelViewSet):
             data["saving"] = 0
             
         data["user_id"] = request.user.id
+        data["detail"] = bleach.clean(data["detail"])
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         super().perform_create(serializer)
